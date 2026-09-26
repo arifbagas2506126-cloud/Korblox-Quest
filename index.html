@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>KORBLOX QUEST — Survive to Day 71</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0a0a0c; --panel:#141317; --panel2:#1c1a1f; --line:#2a2730;
+    --crimson:#c0132f; --crimson-dim:#5c0a17; --crimson-glow:#ff2d4d;
+    --fog:#8b8792; --text:#f0ece9; --text-dim:#9d97a3; --gold:#d9a441;
+    box-sizing:border-box;
+    padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+  }
+  html{scroll-padding-top:env(safe-area-inset-top,0px);}
+  *{box-sizing:border-box;}
+  html,body{height:100%;}
+  body{
+    margin:0; background:var(--bg); color:var(--text);
+    font-family:'JetBrains Mono',monospace;
+    background-image:
+      radial-gradient(ellipse 80% 50% at 50% -10%, rgba(192,19,47,.18), transparent),
+      radial-gradient(ellipse 60% 40% at 90% 100%, rgba(192,19,47,.08), transparent);
+  }
+  h1,h2,h3{font-family:'Oswald',sans-serif; margin:0; letter-spacing:.02em;}
+  .wrap{max-width:760px; margin:0 auto; padding:28px 18px 60px;}
+  header{text-align:center; margin-bottom:26px;}
+  .eyebrow{color:var(--crimson-glow); font-size:12px; letter-spacing:.35em; margin-bottom:6px;}
+  h1{font-size:clamp(32px,8vw,48px); font-weight:700; text-transform:uppercase;
+     text-shadow:0 0 24px rgba(192,19,47,.5);}
+  .sub{color:var(--text-dim); font-size:14px; margin-top:6px;}
+
+  .hud{background:var(--panel); border:1px solid var(--line); border-radius:4px; padding:20px; margin-bottom:18px;
+       box-shadow:inset 0 0 40px rgba(192,19,47,.05);}
+  .hud-top{display:flex; justify-content:space-between; align-items:baseline; margin-bottom:10px;}
+  .hud-day{font-family:'Oswald'; font-size:15px; letter-spacing:.05em;}
+  .hud-day b{color:var(--crimson-glow); font-size:22px;}
+  .hud-pct{font-size:13px; color:var(--text-dim);}
+  .bar{height:16px; background:#0e0d10; border:1px solid var(--line); border-radius:2px; overflow:hidden; position:relative;}
+  .bar-fill{height:100%; background:linear-gradient(90deg,var(--crimson-dim),var(--crimson) 60%,var(--crimson-glow)); transition:width .5s ease;}
+  .bar-fill::after{content:''; position:absolute; inset:0; background:repeating-linear-gradient(45deg,rgba(255,255,255,.04) 0 8px,transparent 8px 16px);}
+
+  .stats{display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin:16px 0 24px;}
+  .stat{background:var(--panel); border:1px solid var(--line); border-radius:4px; padding:12px; text-align:center;}
+  .stat .v{font-family:'Oswald'; font-size:18px; color:var(--gold);}
+  .stat .l{font-size:10px; color:var(--text-dim); margin-top:4px; letter-spacing:.05em;}
+
+  section{margin-bottom:26px;}
+  .sec-title{font-size:13px; color:var(--fog); letter-spacing:.15em; margin-bottom:10px; display:flex; align-items:center; gap:8px;}
+  .sec-title::after{content:''; flex:1; height:1px; background:var(--line);}
+
+  .grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(38px,1fr)); gap:6px;}
+  .day{aspect-ratio:1; background:var(--panel2); border:1px solid var(--line); border-radius:3px; cursor:pointer;
+       display:flex; align-items:center; justify-content:center; font-size:11px; color:var(--text-dim); user-select:none;
+       transition:background .15s, border-color .15s, transform .1s;}
+  .day:hover{border-color:var(--crimson);}
+  .day:active{transform:scale(.9);}
+  .day.done{background:var(--crimson-dim); border-color:var(--crimson); color:#fff; box-shadow:0 0 10px rgba(192,19,47,.4);}
+  .day.milestone::after{content:'●'; position:absolute; font-size:6px; margin-top:22px; color:var(--gold);}
+  .day{position:relative;}
+
+  .weeks{display:flex; flex-direction:column; gap:6px;}
+  .week-row{display:flex; justify-content:space-between; align-items:center; background:var(--panel); border:1px solid var(--line);
+             border-left:3px solid var(--line); border-radius:3px; padding:9px 12px; font-size:12px;}
+  .week-row.cleared{border-left-color:var(--crimson);}
+  .week-row .wl{color:var(--text-dim);}
+  .week-row .wr{color:var(--text);}
+  .week-row.cleared .wr{color:var(--gold);}
+
+  .notes{background:var(--panel); border:1px solid var(--line); border-radius:4px; padding:16px 18px;}
+  .notes ul{margin:0; padding-left:18px; font-size:12.5px; line-height:1.9; color:var(--text-dim);}
+  .notes li::marker{color:var(--crimson-glow);}
+
+  .footer-row{display:flex; justify-content:space-between; align-items:center; margin-top:6px;}
+  button{font-family:'JetBrains Mono',monospace; background:transparent; color:var(--text-dim); border:1px solid var(--line);
+         border-radius:3px; padding:8px 12px; font-size:11px; cursor:pointer; letter-spacing:.05em;}
+  button:hover{border-color:var(--crimson); color:var(--crimson-glow);}
+  .tag{font-size:10px; color:var(--fog); letter-spacing:.1em;}
+
+  @media (max-width:420px){ .stats{grid-template-columns:repeat(2,1fr);} }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="eyebrow">EVADE PROTOCOL // SURVIVAL SAVINGS</div>
+    <h1>Korblox Quest</h1>
+    <div class="sub">Target: Korblox Deathspeaker — 13.600 Robux — Rp2.104.000</div>
+  </header>
+
+  <div class="hud">
+    <div class="hud-top">
+      <div class="hud-day">ROUND <b id="dayNow">0</b> / 71</div>
+      <div class="hud-pct" id="pctText">0% selamat</div>
+    </div>
+    <div class="bar"><div class="bar-fill" id="barFill" style="width:0%"></div></div>
+  </div>
+
+  <div class="stats">
+    <div class="stat"><div class="v" id="statSaved">Rp0</div><div class="l">TERKUMPUL</div></div>
+    <div class="stat"><div class="v" id="statLeft">Rp2.104.000</div><div class="l">SISA MENUJU LOOT</div></div>
+    <div class="stat"><div class="v">03 Des</div><div class="l">EXTRACTION DAY</div></div>
+  </div>
+
+  <section>
+    <div class="sec-title">ROUND LOG · 71 HARI</div>
+    <div class="grid" id="dayGrid"></div>
+  </section>
+
+  <section>
+    <div class="sec-title">CHECKPOINT MINGGUAN</div>
+    <div class="weeks" id="weekList"></div>
+  </section>
+
+  <section>
+    <div class="sec-title">STRATEGI BERTAHAN</div>
+    <div class="notes">
+      <ul>
+        <li>Pisahkan tabungan Korblox dari uang kebutuhan lain — jangan sampai "ghost" ambil duluan.</li>
+        <li>Pantau progress tiap checkpoint mingguan, bukan cuma di akhir.</li>
+        <li>Kalau satu hari nggak bisa nabung Rp30.000, nggak apa — geser aja target, jangan maksa.</li>
+        <li>Jangan pakai uang tabungan untuk kebutuhan penting demi mempercepat pembelian.</li>
+      </ul>
+    </div>
+  </section>
+
+  <div class="footer-row">
+    <span class="tag">Sisa setelah beli: Rp26.000 · Mulai 24 Sep 2026</span>
+    <button id="resetBtn">RESET PROGRESS</button>
+  </div>
+</div>
+
+<script>
+(function(){
+  const TOTAL_DAYS = 71, DAILY = 30000, PRICE = 2104000;
+  const bulan = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+  const start = new Date(2026,8,24); // 24 Sep 2026
+  const fmt = d => `${d.getDate()} ${bulan[d.getMonth()]}`;
+
+  const KEY = 'korblox-quest-progress';
+  let progress = [];
+  try{
+    const raw = localStorage.getItem(KEY);
+    progress = raw ? JSON.parse(raw) : new Array(TOTAL_DAYS).fill(false);
+  }catch(e){ progress = new Array(TOTAL_DAYS).fill(false); }
+  if(!Array.isArray(progress) || progress.length !== TOTAL_DAYS) progress = new Array(TOTAL_DAYS).fill(false);
+
+  const grid = document.getElementById('dayGrid');
+  for(let i=0;i<TOTAL_DAYS;i++){
+    const d = new Date(start); d.setDate(start.getDate()+i);
+    const cell = document.createElement('div');
+    cell.className = 'day' + ((i+1)%7===0 ? ' milestone' : '');
+    cell.textContent = i+1;
+    cell.title = fmt(d) + ' — Rp30.000';
+    cell.addEventListener('click', ()=>{
+      progress[i] = !progress[i];
+      save(); render();
+    });
+    grid.appendChild(cell);
+  }
+
+  function save(){
+    try{ localStorage.setItem(KEY, JSON.stringify(progress)); }catch(e){}
+  }
+
+  function render(){
+    const cells = grid.children;
+    let saved = 0;
+    for(let i=0;i<TOTAL_DAYS;i++){
+      cells[i].classList.toggle('done', !!progress[i]);
+      if(progress[i]) saved++;
+    }
+    const total = saved*DAILY;
+    const pct = Math.min(100, Math.round((total/PRICE)*100));
+    document.getElementById('dayNow').textContent = saved;
+    document.getElementById('pctText').textContent = pct + '% selamat';
+    document.getElementById('barFill').style.width = pct + '%';
+    document.getElementById('statSaved').textContent = 'Rp' + total.toLocaleString('id-ID');
+    document.getElementById('statLeft').textContent = 'Rp' + Math.max(0,PRICE-total).toLocaleString('id-ID');
+
+    const weekList = document.getElementById('weekList');
+    weekList.innerHTML = '';
+    for(let w=1; w<=11; w++){
+      const dayIdx = w<=10 ? w*7 : 71;
+      const cumSaved = progress.slice(0,dayIdx).filter(Boolean).length * DAILY;
+      const cleared = progress.slice(0,dayIdx).every(Boolean) && dayIdx<=saved+ (progress.slice(0,dayIdx).filter(Boolean).length===dayIdx?0:1) ? progress.slice(0,dayIdx).every(Boolean) : progress.slice(0,dayIdx).every(Boolean);
+      const done = progress.slice(0,dayIdx).every(Boolean);
+      const d = new Date(start); d.setDate(start.getDate()+dayIdx-1);
+      const row = document.createElement('div');
+      row.className = 'week-row' + (done ? ' cleared' : '');
+      row.innerHTML = `<span class="wl">Minggu ${w} · hari ke-${dayIdx} · ${fmt(d)}</span><span class="wr">${done?'✓ CLEAR':'Rp'+cumSaved.toLocaleString('id-ID')}</span>`;
+      weekList.appendChild(row);
+    }
+  }
+
+  document.getElementById('resetBtn').addEventListener('click', ()=>{
+    if(confirm('Reset semua progress tabungan?')){
+      progress = new Array(TOTAL_DAYS).fill(false);
+      save(); render();
+    }
+  });
+
+  render();
+})();
+</script>
+</body>
+</html>
